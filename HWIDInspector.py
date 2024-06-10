@@ -1,4 +1,5 @@
 import sys
+import os
 import wmi
 import winreg
 import datetime
@@ -125,6 +126,19 @@ class HWIDInspector(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    
+    # Print the current working directory
+    print("Current working directory:", os.getcwd())
+    
+    # Load and apply the dark theme stylesheet
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    stylesheet_path = os.path.join(script_dir, "dark_theme.qss")
+    try:
+        with open(stylesheet_path, "r") as stylesheet:
+            app.setStyleSheet(stylesheet.read())
+    except FileNotFoundError:
+        print(f"Stylesheet file not found: {stylesheet_path}")
+    
     inspector = HWIDInspector()
     inspector.show()
     sys.exit(app.exec())
