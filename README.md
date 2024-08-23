@@ -1,8 +1,22 @@
-# HWID Inspector
+<div align="center">
+
+# HWID Inspector 🔍
+
+<img src="https://i.ibb.co/placeholder-image/hwidinspector.png" alt="HWID Inspector Logo" width="200"/>
 
 HWID Inspector is a Python tool that allows users to inspect and modify their system's Hardware ID (HWID) and view other system information like BIOS serial number, manufacturer, model, MAC address, and the last change/update time. It features a clean and user-friendly graphical interface built using `PySide6` (Qt for Python).
 
-## Features
+[Features](#-features) •
+[Requirements](#-requirements) •
+[Installation](#-installation) •
+[Usage](#-usage) •
+[UI Elements](#-ui-elements) •
+[Example Output](#-example-output) •
+[License](#-license)
+
+</div>
+
+## 🌟 Features
 
 - View current Hardware ID (HWID)
 - View MAC address of the system
@@ -12,27 +26,26 @@ HWID Inspector is a Python tool that allows users to inspect and modify their sy
 - Change the system's HWID to a user-specified value
 - Clean and user-friendly interface
 
-## Requirements
+## 🛠️ Requirements
 
 - Python 3.7+
 - `wmi` library
 - `getmac` library
 - `PySide6` library
 
-## Installation
+## 📥 Installation
 
 1. Clone the repository:
-    ```sh
-    git clone https://github.com/boshyxd/HWIDInspector.git
-    cd HWIDInspector
-    ```
-
+   ```sh
+   git clone https://github.com/boshyxd/HWIDInspector.git
+   cd HWIDInspector
+   ```
 2. Install the required dependencies:
-    ```sh
-    pip install wmi getmac PySide6
-    ```
+   ```sh
+   pip install wmi getmac PySide6
+   ```
 
-## Usage
+## 🚀 Usage
 
 Run the script to start the HWID Inspector application:
 
@@ -40,7 +53,7 @@ Run the script to start the HWID Inspector application:
 python HWIDInspector.py
 ```
 
-### UI Elements
+## 🖥️ UI Elements
 
 - **Hardware ID (UUID)**: Displays the current HWID of the system.
 - **MAC Address**: Displays the MAC address of the system.
@@ -53,7 +66,7 @@ python HWIDInspector.py
 - **Change HWID**: Button to change the system's HWID to the value specified in the text entry.
 - **Refresh Info**: Button to refresh and display the latest system information.
 
-### Example Output
+## 📊 Example Output
 
 ```bash
 Hardware ID (UUID): 06681AA8-9290-D361-3BB5-244BFE7DB4C1
@@ -66,6 +79,14 @@ Enter new HWID: [               ]
 [Generate HWID] [Change HWID] [Refresh Info]
 ```
 
-### License
+## 📄 License
 
 This project is licensed under the MIT License.
+
+<div align="center">
+
+---
+
+Made with ❤️ by [boshyxd](https://github.com/boshyxd)
+
+</div>
