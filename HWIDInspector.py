@@ -6,6 +6,8 @@ import datetime
 import uuid
 import ctypes
 import re
+import subprocess
+import threading
 from getmac import get_mac_address
 from PySide6.QtWidgets import (
     QApplication,
@@ -20,7 +22,9 @@ from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QTextEdit,
+    QFileDialog,
 )
+from PySide6.QtCore import QTimer
 
 def get_hwid():
     try:
@@ -436,6 +440,10 @@ class HWIDInspector(QWidget):
         self.vm_uuid_button = QPushButton("VM UUID Guide", self)
         self.vm_uuid_button.clicked.connect(self.show_vm_uuid_guide)
 
+        self.launch_with_spoof_button = QPushButton("Launch With Spoof", self)
+        self.launch_with_spoof_button.setToolTip("Temporarily apply spoof, run an app, then revert when it exits.")
+        self.launch_with_spoof_button.clicked.connect(self.launch_with_spoof)
+
         layout = QVBoxLayout()
 
         layout.addWidget(self.hwid_label)
@@ -464,6 +472,7 @@ class HWIDInspector(QWidget):
 
         layout.addWidget(self.spoof_mac_checkbox)
         layout.addWidget(self.vm_uuid_button)
+        layout.addWidget(self.launch_with_spoof_button)
 
         self.setLayout(layout)
         self.last_prev_machine_guid = None
@@ -472,6 +481,7 @@ class HWIDInspector(QWidget):
         self.last_prev_hwprofile_guid = None
         self.last_prev_adapter_guid = None
         self.last_prev_adapter_networkaddress = None
+        self._spoof_process_thread = None
         self.display_info()
 
     def display_info(self):
@@ -582,6 +592,63 @@ class HWIDInspector(QWidget):
         layout.addWidget(buttons)
         dlg.resize(640, 360)
         dlg.exec()
+
+    def launch_with_spoof(self):
+        new_hwid = self.hwid_entry.text().strip()
+        if not new_hwid:
+            QMessageBox.warning(self, "Input Error", "Please enter a valid GUID in the input field.")
+            return
+        if not is_admin():
+            QMessageBox.warning(self, "Administrator Required", "Launch With Spoof requires Administrator privileges.")
+            return
+        # Choose executable
+        exe_path, _ = QFileDialog.getOpenFileName(self, "Select Application to Launch", os.getcwd(), "Programs (*.exe);;All Files (*.*)")
+        if not exe_path:
+            return
+
+        # Apply registry spoof
+        changed, prev_machine, prev_profile = update_hwid(new_hwid)
+        if changed:
+            self.last_prev_machine_guid = prev_machine
+            self.last_prev_hwprofile_guid = prev_profile
+        # Optionally spoof MAC
+        mac_applied = False
+        prev_netaddr = None
+        adapter_guid = None
+        if self.spoof_mac_checkbox.isChecked():
+            adapter = get_primary_adapter_info()
+            if adapter and adapter.get('GUID'):
+                adapter_guid = adapter['GUID']
+                prev_netaddr = get_adapter_networkaddress(adapter_guid)
+                target_mac = mac_from_guid_like(new_hwid)
+                if set_adapter_networkaddress(adapter_guid, target_mac):
+                    restart_adapter_by_guid(adapter_guid)
+                    mac_applied = True
+        self.display_info()
+
+        # Launch process and revert when it exits (in background thread)
+        def _run_and_revert():
+            try:
+                proc = subprocess.Popen([exe_path])
+                proc.wait()
+            except Exception:
+                pass
+            # Revert MAC
+            if adapter_guid is not None:
+                if prev_netaddr:
+                    set_adapter_networkaddress(adapter_guid, prev_netaddr)
+                else:
+                    clear_adapter_networkaddress(adapter_guid)
+                restart_adapter_by_guid(adapter_guid)
+            # Revert registry
+            if self.last_prev_machine_guid or self.last_prev_hwprofile_guid:
+                revert_identifiers(self.last_prev_machine_guid, self.last_prev_hwprofile_guid)
+            # Refresh UI on main thread
+            QTimer.singleShot(0, self.display_info)
+
+        self._spoof_process_thread = threading.Thread(target=_run_and_revert, daemon=True)
+        self._spoof_process_thread.start()
+        QMessageBox.information(self, "Launched", "Application started with spoof applied. It will revert after the app exits.")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

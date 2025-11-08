@@ -22,6 +22,7 @@ A simple Windows-only GUI tool to inspect common hardware identifiers. It shows 
 - Change MachineGuid and the active HwProfileGuid (Admin required)
 - Revert last changes within the session
 - Spoof primary network adapter MAC (Admin required; driver support needed)
+- Launch With Spoof: temporarily apply spoof, run an app, then revert
 - Clean, minimal PySide6 GUI with optional dark theme (`dark_theme.qss`)
 
 ## Requirements
@@ -67,6 +68,7 @@ Main actions:
 - Restart as Admin: relaunches the app elevated to allow changes.
 - Refresh Info: reloads and displays current values from the system.
 - Spoof primary adapter MAC: enable the checkbox to also set a locally-administered MAC derived from the input GUID and restart the adapter. Network may briefly drop.
+- Launch With Spoof: applies registry/MAC spoof, launches a selected program, and reverts after it exits. Useful to scope spoof to the app you run.
 
 ## UI Overview
 
