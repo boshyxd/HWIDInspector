@@ -1,92 +1,88 @@
-<div align="center">
+# HWID Inspector
 
-# HWID Inspector 🔍
+A simple Windows-only GUI tool to inspect common hardware identifiers and attempt to update the system Hardware ID (UUID). It shows the current HWID, MAC address, BIOS serial number, system manufacturer and model, and the Hardware Profile last change time. The interface is built with PySide6 and ships with a dark theme stylesheet.
 
-<img src="https://i.ibb.co/placeholder-image/hwidinspector.png" alt="HWID Inspector Logo" width="200"/>
+- Features
+- Requirements
+- Installation
+- Usage
+- UI Overview
+- Troubleshooting
+- Notes & Warnings
+- License
 
-HWID Inspector is a Python tool that allows users to inspect and modify their system's Hardware ID (HWID) and view other system information like BIOS serial number, manufacturer, model, MAC address, and the last change/update time. It features a clean and user-friendly graphical interface built using `PySide6` (Qt for Python).
+## Features
 
-[Features](#-features) •
-[Requirements](#-requirements) •
-[Installation](#-installation) •
-[Usage](#-usage) •
-[UI Elements](#-ui-elements) •
-[Example Output](#-example-output) •
-[License](#-license)
-
-</div>
-
-## 🌟 Features
-
-- View current Hardware ID (HWID)
-- View MAC address of the system
+- View current Hardware ID (UUID)
+- View MAC address
 - View BIOS serial number, manufacturer, and model
-- View the last change/update time of the hardware profile
-- Generate a new random HWID
-- Change the system's HWID to a user-specified value
-- Clean and user-friendly interface
+- View Hardware Profile last change/update time
+- Generate a new random UUID
+- Attempt to set HWID to a user-specified value
+- Clean, minimal PySide6 GUI with optional dark theme (`dark_theme.qss`)
 
-## 🛠️ Requirements
+## Requirements
 
-- Python 3.7+
-- `wmi` library
-- `getmac` library
-- `PySide6` library
+- Windows 10/11
+- Python 3.8+
+- Python packages: `PySide6`, `wmi`, `getmac`
 
-## 📥 Installation
+## Installation
 
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/boshyxd/HWIDInspector.git
-   cd HWIDInspector
-   ```
-2. Install the required dependencies:
-   ```sh
-   pip install wmi getmac PySide6
-   ```
+1) Clone the repository
 
-## 🚀 Usage
+```sh
+git clone https://github.com/boshyxd/HWIDInspector.git
+cd HWIDInspector
+```
 
-Run the script to start the HWID Inspector application:
+2) (Optional) Create and activate a virtual environment
+
+```sh
+python -m venv .venv
+.\.venv\Scripts\activate
+```
+
+3) Install dependencies
+
+```sh
+pip install PySide6 wmi getmac
+```
+
+## Usage
+
+Run the application from the project root:
 
 ```sh
 python HWIDInspector.py
 ```
 
-## 🖥️ UI Elements
+Main actions:
+- Generate HWID: fills the input with a new random UUID.
+- Change HWID: attempts to set the system UUID/HWID to the input value.
+- Refresh Info: reloads and displays current values from the system.
 
-- **Hardware ID (UUID)**: Displays the current HWID of the system.
-- **MAC Address**: Displays the MAC address of the system.
-- **BIOS Serial Number**: Displays the BIOS serial number.
-- **Manufacturer**: Displays the manufacturer of the system.
-- **Model**: Displays the model of the system.
-- **Last Changed/Updated**: Displays the last change/update time of the hardware profile.
-- **Enter new HWID**: Text entry to input a new HWID.
-- **Generate HWID**: Button to generate a new random HWID and fill it in the text entry.
-- **Change HWID**: Button to change the system's HWID to the value specified in the text entry.
-- **Refresh Info**: Button to refresh and display the latest system information.
+## UI Overview
 
-## 📊 Example Output
+- Hardware ID (UUID): current system UUID
+- MAC Address: primary MAC as reported by `getmac`
+- BIOS Serial Number: BIOS serial from WMI
+- Manufacturer / Model: system info from WMI
+- Last Changed/Updated: Hardware Profile last change time from registry
+- Enter new HWID: text field to provide a target UUID
+- Generate HWID / Change HWID / Refresh Info: action buttons
 
-```bash
-Hardware ID (UUID): 06681AA8-9290-D361-3BB5-244BFE7DB4C1
-MAC Address: 00:1A:2B:3C:4D:5E
-BIOS Serial Number: 1234567890
-Manufacturer: ExampleManufacturer
-Model: ExampleModel
-Last Changed/Updated: 2024-06-10 12:34:56
-Enter new HWID: [               ]
-[Generate HWID] [Change HWID] [Refresh Info]
-```
+## Troubleshooting
 
-## 📄 License
+- Import errors on non-Windows platforms: this tool only supports Windows.
+- If `wmi` installation fails, install `pywin32` then retry: `pip install pywin32 wmi`.
+- If the dark theme does not load, ensure `dark_theme.qss` sits next to `HWIDInspector.py`.
 
-This project is licensed under the MIT License.
+## Notes & Warnings
 
-<div align="center">
+- Changing the system UUID/HWID may require Administrator privileges and may not be supported on all hardware/firmware configurations. The application will show an error if the change is rejected.
+- Modifying hardware identifiers can affect software licensing and anti-cheat systems. Use at your own risk and ensure you comply with applicable policies and laws.
 
----
+## License
 
-Made with ❤️ by [boshyxd](https://github.com/boshyxd)
-
-</div>
+MIT
