@@ -1,6 +1,6 @@
 # HWID Inspector
 
-A simple Windows-only GUI tool to inspect common hardware identifiers and attempt to update the system Hardware ID (UUID). It shows the current HWID, MAC address, BIOS serial number, system manufacturer and model, and the Hardware Profile last change time. The interface is built with PySide6 and ships with a dark theme stylesheet.
+A simple Windows-only GUI tool to inspect common hardware identifiers. It shows the current firmware HWID (system UUID), MachineGuid, Hardware Profile GUID, MAC address, BIOS serial number, system manufacturer and model, and the Hardware Profile last change time. The interface is built with PySide6 and ships with a dark theme stylesheet.
 
 - Features
 - Requirements
@@ -14,11 +14,13 @@ A simple Windows-only GUI tool to inspect common hardware identifiers and attemp
 ## Features
 
 - View current Hardware ID (UUID)
+- View MachineGuid and Hardware Profile GUID
 - View MAC address
 - View BIOS serial number, manufacturer, and model
 - View Hardware Profile last change/update time
 - Generate a new random UUID
-- Attempt to set HWID to a user-specified value
+- Change MachineGuid and HwProfileGuid (Admin required)
+- Revert last changes within the session
 - Clean, minimal PySide6 GUI with optional dark theme (`dark_theme.qss`)
 
 ## Requirements
@@ -58,8 +60,10 @@ python HWIDInspector.py
 ```
 
 Main actions:
-- Generate HWID: fills the input with a new random UUID.
-- Change HWID: attempts to set the system UUID/HWID to the input value.
+- Generate HWID: fills the input with a new random UUID (for reference, or to apply to registry-based identifiers).
+- Change HWID: when run as Administrator, sets MachineGuid and HwProfileGuid in the registry to the input GUID. The firmware System UUID remains read-only.
+- Revert Changes: restores the previous MachineGuid and HwProfileGuid from this session.
+- Restart as Admin: relaunches the app elevated to allow changes.
 - Refresh Info: reloads and displays current values from the system.
 
 ## UI Overview
@@ -77,10 +81,13 @@ Main actions:
 - Import errors on non-Windows platforms: this tool only supports Windows.
 - If `wmi` installation fails, install `pywin32` then retry: `pip install pywin32 wmi`.
 - If the dark theme does not load, ensure `dark_theme.qss` sits next to `HWIDInspector.py`.
+- If "Administrator Required" appears when changing/reverting: click "Restart as Admin" in the app, or launch the app from an elevated terminal.
 
 ## Notes & Warnings
 
-- Changing the system UUID/HWID may require Administrator privileges and may not be supported on all hardware/firmware configurations. The application will show an error if the change is rejected.
+- The firmware System UUID/HWID exposed by WMI is read-only and cannot be changed via software. Attempts via WMI fail with a provider error ("provider not capable").
+- As an alternative, this app can change registry-based identifiers (MachineGuid and HwProfileGuid) when run as Administrator. This may affect software licensing, device identity in some apps/services, and may require a system restart to fully take effect.
+- Editing the registry is risky. Ensure you understand the implications and back up your system or registry beforehand.
 - Modifying hardware identifiers can affect software licensing and anti-cheat systems. Use at your own risk and ensure you comply with applicable policies and laws.
 
 ## License
