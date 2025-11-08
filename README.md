@@ -19,8 +19,9 @@ A simple Windows-only GUI tool to inspect common hardware identifiers. It shows 
 - View BIOS serial number, manufacturer, and model
 - View Hardware Profile last change/update time
 - Generate a new random UUID
-- Change MachineGuid and HwProfileGuid (Admin required)
+- Change MachineGuid and the active HwProfileGuid (Admin required)
 - Revert last changes within the session
+- Spoof primary network adapter MAC (Admin required; driver support needed)
 - Clean, minimal PySide6 GUI with optional dark theme (`dark_theme.qss`)
 
 ## Requirements
@@ -65,6 +66,7 @@ Main actions:
 - Revert Changes: restores the previous MachineGuid and HwProfileGuid from this session.
 - Restart as Admin: relaunches the app elevated to allow changes.
 - Refresh Info: reloads and displays current values from the system.
+- Spoof primary adapter MAC: enable the checkbox to also set a locally-administered MAC derived from the input GUID and restart the adapter. Network may briefly drop.
 
 ## UI Overview
 
@@ -87,6 +89,7 @@ Main actions:
 
 - The firmware System UUID/HWID exposed by WMI is read-only and cannot be changed via software. Attempts via WMI fail with a provider error ("provider not capable").
 - As an alternative, this app can change registry-based identifiers (MachineGuid and HwProfileGuid) when run as Administrator. This may affect software licensing, device identity in some apps/services, and may require a system restart to fully take effect.
+- MAC spoofing relies on the NIC driver honoring the `NetworkAddress` setting; not all drivers support it. The app restarts the adapter; connectivity will momentarily drop.
 - Editing the registry is risky. Ensure you understand the implications and back up your system or registry beforehand.
 - Modifying hardware identifiers can affect software licensing and anti-cheat systems. Use at your own risk and ensure you comply with applicable policies and laws.
 
