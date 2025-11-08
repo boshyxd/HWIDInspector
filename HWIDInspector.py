@@ -7,7 +7,20 @@ import uuid
 import ctypes
 import re
 from getmac import get_mac_address
-from PySide6.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox, QCheckBox
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QHBoxLayout,
+    QMessageBox,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QTextEdit,
+)
 
 def get_hwid():
     try:
@@ -420,6 +433,9 @@ class HWIDInspector(QWidget):
 
         self.spoof_mac_checkbox = QCheckBox("Spoof primary adapter MAC", self)
 
+        self.vm_uuid_button = QPushButton("VM UUID Guide", self)
+        self.vm_uuid_button.clicked.connect(self.show_vm_uuid_guide)
+
         layout = QVBoxLayout()
 
         layout.addWidget(self.hwid_label)
@@ -447,6 +463,7 @@ class HWIDInspector(QWidget):
         layout.addLayout(button_layout)
 
         layout.addWidget(self.spoof_mac_checkbox)
+        layout.addWidget(self.vm_uuid_button)
 
         self.setLayout(layout)
         self.last_prev_machine_guid = None
@@ -528,6 +545,43 @@ class HWIDInspector(QWidget):
             self.display_info()
         else:
             QMessageBox.information(self, "Nothing to Revert", "No previous change recorded in this session.")
+
+    def show_vm_uuid_guide(self):
+        raw = self.hwid_entry.text().strip()
+        machine_guid, hwprofile_guid = normalize_guid(raw)
+        if not machine_guid:
+            QMessageBox.warning(self, "Input Error", "Please enter a valid GUID in the input field.")
+            return
+        vbox_guid = machine_guid.upper()
+        vm_name_placeholder = "Your-VM-Name"
+        text = []
+        text.append("VirtualBox (set SMBIOS/UUID for a VM):")
+        text.append(f"  VBoxManage setextradata \"{vm_name_placeholder}\" \"VBoxInternal/Devices/pcbios/0/Config/DmiSystemUuid\" \"{vbox_guid}\"")
+        text.append(f"  VBoxManage setextradata \"{vm_name_placeholder}\" \"VBoxInternal/Devices/pcbios/0/Config/DmiSystemVendor\" \"CustomVendor\"")
+        text.append(f"  VBoxManage setextradata \"{vm_name_placeholder}\" \"VBoxInternal/Devices/pcbios/0/Config/DmiSystemProduct\" \"CustomModel\"")
+        text.append("")
+        text.append("VMware (add lines to the .vmx file):")
+        text.append(f"  uuid.bios = \"{machine_guid}\"")
+        text.append(f"  uuid.location = \"{machine_guid}\"")
+        text.append("  smbios.reflectHost = \"FALSE\"")
+        text.append("")
+        text.append("Notes:")
+        text.append("- Power off the VM before applying changes.")
+        text.append("- These changes affect what apps inside the VM see as the firmware UUID.")
+        text.append("- This does not change the host machine's firmware UUID.")
+
+        dlg = QDialog(self)
+        dlg.setWindowTitle("VM UUID Guide")
+        layout = QVBoxLayout(dlg)
+        txt = QTextEdit(dlg)
+        txt.setReadOnly(True)
+        txt.setText("\n".join(text))
+        layout.addWidget(txt)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttons.accepted.connect(dlg.accept)
+        layout.addWidget(buttons)
+        dlg.resize(640, 360)
+        dlg.exec()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
