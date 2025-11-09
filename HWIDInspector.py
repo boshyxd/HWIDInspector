@@ -25,7 +25,8 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QComboBox,
 )
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Qt
+from PySide6.QtWidgets import QTabWidget, QGroupBox, QFormLayout, QSizePolicy
 
 def get_hwid():
     try:
@@ -495,7 +496,7 @@ class HWIDInspector(QWidget):
 
     def initUI(self):
         self.setWindowTitle("HWID Inspector")
-        self.setFixedSize(520, 640)
+        self.resize(900, 650)
 
         self.hwid_label = QLabel("Hardware ID (UUID): ", self)
         self.machine_guid_label = QLabel("MachineGuid: ", self)
@@ -548,56 +549,95 @@ class HWIDInspector(QWidget):
         self.launch_with_spoof_button.setToolTip("Temporarily apply spoof, run an app, then revert when it exits.")
         self.launch_with_spoof_button.clicked.connect(self.launch_with_spoof)
 
-        layout = QVBoxLayout()
+        root = QVBoxLayout()
 
-        layout.addWidget(self.hwid_label)
-        layout.addWidget(self.machine_guid_label)
-        layout.addWidget(self.hwprofile_guid_label)
-        layout.addWidget(self.mac_label)
-        layout.addWidget(self.adapter_label)
-        layout.addWidget(self.adapter_mac_label)
-        adapter_select_layout = QHBoxLayout()
-        adapter_select_layout.addWidget(self.adapter_select_label)
-        adapter_select_layout.addWidget(self.adapter_combo)
-        layout.addLayout(adapter_select_layout)
-        layout.addWidget(self.bios_label)
-        layout.addWidget(self.manufacturer_label)
-        layout.addWidget(self.model_label)
-        layout.addWidget(self.last_changed_label)
-        
-        hwid_entry_layout = QHBoxLayout()
-        hwid_entry_layout.addWidget(self.hwid_entry_label)
-        hwid_entry_layout.addWidget(self.hwid_entry)
-        layout.addLayout(hwid_entry_layout)
+        # Overview section
+        overview_group = QGroupBox("Overview", self)
+        overview_form = QFormLayout(overview_group)
+        self.hwid_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.machine_guid_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.hwprofile_guid_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.mac_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.adapter_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.adapter_mac_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.bios_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.manufacturer_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.model_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.last_changed_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.computer_name_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.installation_id_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        overview_form.addRow("Hardware ID (UUID)", self.hwid_label)
+        overview_form.addRow("MachineGuid", self.machine_guid_label)
+        overview_form.addRow("HwProfileGuid", self.hwprofile_guid_label)
+        overview_form.addRow("Primary MAC", self.mac_label)
+        overview_form.addRow("Adapter Name", self.adapter_label)
+        overview_form.addRow("Adapter MAC", self.adapter_mac_label)
+        overview_form.addRow("BIOS Serial", self.bios_label)
+        overview_form.addRow("Manufacturer", self.manufacturer_label)
+        overview_form.addRow("Model", self.model_label)
+        overview_form.addRow("Hardware Profile Last Changed", self.last_changed_label)
+        overview_form.addRow("Computer Name", self.computer_name_label)
+        overview_form.addRow("InstallationID", self.installation_id_label)
+        root.addWidget(overview_group)
 
-        button_layout = QHBoxLayout()
-        button_layout.addWidget(self.generate_hwid_button)
-        button_layout.addWidget(self.change_hwid_button)
-        button_layout.addWidget(self.display_info_button)
-        button_layout.addWidget(self.revert_button)
-        button_layout.addWidget(self.elevate_button)
-        layout.addLayout(button_layout)
+        # Change & Spoof section
+        change_group = QGroupBox("Change & Spoof", self)
+        change_v = QVBoxLayout(change_group)
+        input_row = QHBoxLayout()
+        self.hwid_entry.setPlaceholderText("Enter GUID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)")
+        self.generate_hwid_button.setText("Generate GUID")
+        input_row.addWidget(self.hwid_entry)
+        input_row.addWidget(self.generate_hwid_button)
+        change_v.addLayout(input_row)
 
-        layout.addWidget(self.spoof_mac_checkbox)
-        layout.addWidget(self.vm_uuid_button)
-        layout.addWidget(self.launch_with_spoof_button)
+        spoof_row = QHBoxLayout()
+        self.spoof_mac_checkbox.setText("Spoof adapter MAC")
+        spoof_row.addWidget(self.spoof_mac_checkbox)
+        self.adapter_select_label.setText("Adapter:")
+        spoof_row.addWidget(self.adapter_select_label)
+        spoof_row.addWidget(self.adapter_combo, 1)
+        change_v.addLayout(spoof_row)
 
-        # Computer name rename section
-        layout.addWidget(self.computer_name_label)
-        compname_layout = QHBoxLayout()
-        compname_layout.addWidget(self.computer_name_entry)
-        compname_layout.addWidget(self.rename_button)
-        layout.addLayout(compname_layout)
+        buttons_row = QHBoxLayout()
+        self.change_hwid_button.setText("Apply Changes")
+        buttons_row.addWidget(self.change_hwid_button)
+        buttons_row.addWidget(self.revert_button)
+        buttons_row.addStretch(1)
+        buttons_row.addWidget(self.display_info_button)
+        buttons_row.addWidget(self.elevate_button)
+        change_v.addLayout(buttons_row)
 
-        # Installation ID section
-        layout.addWidget(self.installation_id_label)
-        install_layout = QHBoxLayout()
-        install_layout.addWidget(self.installation_id_entry)
-        install_layout.addWidget(self.set_installation_id_button)
-        install_layout.addWidget(self.gen_installation_id_button)
-        layout.addLayout(install_layout)
+        root.addWidget(change_group)
 
-        self.setLayout(layout)
+        # System section
+        system_group = QGroupBox("System", self)
+        sys_v = QVBoxLayout(system_group)
+
+        comp_row = QHBoxLayout()
+        self.computer_name_entry.setPlaceholderText("New computer name (1-15 chars)")
+        self.rename_button.setText("Rename Computer")
+        comp_row.addWidget(self.computer_name_entry, 1)
+        comp_row.addWidget(self.rename_button)
+        sys_v.addLayout(comp_row)
+
+        inst_row = QHBoxLayout()
+        self.installation_id_entry.setPlaceholderText("New InstallationID (GUID)")
+        self.set_installation_id_button.setText("Set InstallationID")
+        self.gen_installation_id_button.setText("Generate InstallationID")
+        inst_row.addWidget(self.installation_id_entry, 1)
+        inst_row.addWidget(self.set_installation_id_button)
+        inst_row.addWidget(self.gen_installation_id_button)
+        sys_v.addLayout(inst_row)
+
+        tools_row = QHBoxLayout()
+        tools_row.addWidget(self.vm_uuid_button)
+        tools_row.addWidget(self.launch_with_spoof_button)
+        tools_row.addStretch(1)
+        sys_v.addLayout(tools_row)
+
+        root.addWidget(system_group)
+        root.addStretch(1)
+        self.setLayout(root)
         self.last_prev_machine_guid = None
         self.last_prev_hwprofile_guid = None
         self.last_prev_machine_guid = None
@@ -618,12 +658,12 @@ class HWIDInspector(QWidget):
         current_name = get_computer_name()
         current_installation_id = get_installation_id()
 
-        self.hwid_label.setText(f"Hardware ID (UUID): {hwid}")
-        self.machine_guid_label.setText(f"MachineGuid: {machine_guid}")
-        self.hwprofile_guid_label.setText(f"HwProfileGuid: {hw_profile_guid}")
-        self.mac_label.setText(f"MAC Address: {mac_address}")
-        self.adapter_label.setText(f"Primary Adapter: {adapter.get('Name','Unknown')}")
-        self.adapter_mac_label.setText(f"Adapter MAC: {adapter.get('MAC','Unknown')}")
+        self.hwid_label.setText(str(hwid))
+        self.machine_guid_label.setText(str(machine_guid))
+        self.hwprofile_guid_label.setText(str(hw_profile_guid))
+        self.mac_label.setText(str(mac_address))
+        self.adapter_label.setText(str(adapter.get('Name','Unknown')))
+        self.adapter_mac_label.setText(str(adapter.get('MAC','Unknown')))
         # Populate adapter combo
         self.adapter_combo.clear()
         self.adapter_combo.addItem("Auto (primary)", None)
@@ -631,12 +671,12 @@ class HWIDInspector(QWidget):
             label = f"{a['Name']} ({a['MAC']})"
             self.adapter_combo.addItem(label, a['GUID'])
         # Computer name and InstallationID
-        self.computer_name_label.setText(f"Computer Name: {current_name}")
-        self.installation_id_label.setText(f"InstallationID: {current_installation_id}")
-        self.bios_label.setText(f"BIOS Serial Number: {bios_serial}")
-        self.manufacturer_label.setText(f"Manufacturer: {manufacturer}")
-        self.model_label.setText(f"Model: {model}")
-        self.last_changed_label.setText(f"Last Changed/Updated: {last_changed}")
+        self.computer_name_label.setText(str(current_name))
+        self.installation_id_label.setText(str(current_installation_id))
+        self.bios_label.setText(str(bios_serial))
+        self.manufacturer_label.setText(str(manufacturer))
+        self.model_label.setText(str(model))
+        self.last_changed_label.setText(str(last_changed))
 
     def change_hwid(self):
         new_hwid = self.hwid_entry.text()
