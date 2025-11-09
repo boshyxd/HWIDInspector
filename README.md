@@ -23,6 +23,9 @@ A simple Windows-only GUI tool to inspect common hardware identifiers. It shows 
 - Revert last changes within the session
 - Spoof primary network adapter MAC (Admin required; driver support needed)
 - Launch With Spoof: temporarily apply spoof, run an app, then revert
+- Select which network adapter to spoof
+- Rename Computer (Admin; reboot required)
+- Edit InstallationID (Admin; may have limited effect)
 - Clean, minimal PySide6 GUI with optional dark theme (`dark_theme.qss`)
 
 ## Requirements
@@ -69,6 +72,8 @@ Main actions:
 - Refresh Info: reloads and displays current values from the system.
 - Spoof primary adapter MAC: enable the checkbox to also set a locally-administered MAC derived from the input GUID and restart the adapter. Network may briefly drop.
 - Launch With Spoof: applies registry/MAC spoof, launches a selected program, and reverts after it exits. Useful to scope spoof to the app you run.
+- Rename Computer: enter a new name (1–15 chars) and click Rename (requires Admin). A reboot is required to fully apply.
+- InstallationID: view/edit the `InstallationID` value under `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion`.
 
 ## UI Overview
 
